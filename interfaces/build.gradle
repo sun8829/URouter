@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+apply from: '../gradle_mvn_push.gradle'

@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'WMRouter'
+
+//WMRouter {
+//    enableDebug = true // 调试开关
+//}
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        applicationId "com.sankuai.waimai.router.demo"
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs {
+        testKey {
+            storeFile file('keystore/TestKeyStore.jks')
+            storePassword 'testkey'
+            keyAlias 'testkey'
+            keyPassword 'testkey'
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.testKey
+        }
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.testKey
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api "androidx.appcompat:appcompat:1.2.0"
+    testImplementation 'junit:junit:4.13.1'
+
+    api project(path: ':demolib1')
+    api project(path: ':demokotlin')
+    annotationProcessor project(path: ':compiler')
+}

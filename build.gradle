@@ -1,0 +1,32 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext.kotlin_version = '1.2.71'
+    repositories {
+        maven { url 'http://10.6.51.28:8040/artifactory/libs-release/' }
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$ANDROID_PLUGIN_VERSION"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+
+//        classpath "com.sankuai.waimai.router:plugin:1.1.0"
+        classpath "com.sankuai.waimai.router:plugin:$VERSION_NAME"
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'http://10.6.51.28:8040/artifactory/libs-release/' }
+        jcenter()
+        google()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
