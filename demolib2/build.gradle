@@ -24,6 +24,6 @@ dependencies {
     api "androidx.appcompat:appcompat:1.2.0"
     testImplementation 'junit:junit:4.13.1'
 
-    api project(path: ':router')
-    annotationProcessor project(path: ':compiler')
+    api "com.yyw.android:router:$VERSION"
+    annotationProcessor "com.yyw.android:compiler:$VERSION"
 }

@@ -88,7 +88,7 @@ public class MainActivity extends BaseActivity {
 
     private void jump(String uri) {
         if (DemoConstant.JUMP_WITH_REQUEST.equals(uri)) {
-            new DefaultUriRequest(this, uri)
+            Router.getInstance().build(this, uri)
                     .activityRequestCode(100)
                     .putExtra(TestUriRequestActivity.INTENT_TEST_INT, 1)
                     .putExtra(TestUriRequestActivity.INTENT_TEST_STR, "str")
@@ -106,7 +106,7 @@ public class MainActivity extends BaseActivity {
                     })
                     .start();
         } else {
-            Router.startUri(this, uri);
+            Router.getInstance().build(this, uri).start();
         }
     }
 }

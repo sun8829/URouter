@@ -9,9 +9,11 @@ import com.sankuai.waimai.router.Router;
 import com.sankuai.waimai.router.annotation.RouterProvider;
 import com.sankuai.waimai.router.annotation.RouterService;
 import com.sankuai.waimai.router.common.DefaultRootUriHandler;
+import com.sankuai.waimai.router.common.DefaultUriRequest;
 import com.sankuai.waimai.router.components.DefaultLogger;
 import com.sankuai.waimai.router.components.DefaultOnCompleteListener;
 import com.sankuai.waimai.router.core.Debugger;
+import com.sankuai.waimai.router.core.RootUriHandler;
 
 /**
  * Created by jzj on 2018/3/19.

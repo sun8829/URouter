@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.sankuai.waimai.router.Router;
 import com.sankuai.waimai.router.common.FragmentUriRequest;
 import com.sankuai.waimai.router.core.OnCompleteListener;
 import com.sankuai.waimai.router.core.UriRequest;
@@ -40,7 +41,6 @@ public class DemoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_demo_2, container, false);
-
 
         v.findViewById(R.id.btn_jump).setOnClickListener(new View.OnClickListener() {
             @Override

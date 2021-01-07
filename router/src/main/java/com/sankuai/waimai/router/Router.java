@@ -2,6 +2,7 @@ package com.sankuai.waimai.router;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Looper;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.sankuai.waimai.router.annotation.RouterProvider;
 import com.sankuai.waimai.router.annotation.RouterService;
+import com.sankuai.waimai.router.common.DefaultUriRequest;
 import com.sankuai.waimai.router.common.PageAnnotationHandler;
 import com.sankuai.waimai.router.core.RootUriHandler;
 import com.sankuai.waimai.router.core.Debugger;
@@ -29,6 +31,7 @@ import com.sankuai.waimai.router.service.IFactory;
 import com.sankuai.waimai.router.service.ServiceImpl;
 import com.sankuai.waimai.router.service.ServiceLoader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,9 +52,13 @@ import java.util.List;
  * Created by jzj on 2018/3/19.
  */
 public class Router {
-
     @SuppressLint("StaticFieldLeak")
     private static RootUriHandler ROOT_HANDLER;
+
+    private static Router INSTANCE = new Router();
+
+    private Router() {
+    }
 
     /**
      * 此初始化方法必须在主线程调用。
@@ -97,8 +104,23 @@ public class Router {
         getRootHandler().startUri(new UriRequest(context, uri));
     }
 
+    public static Router getInstance() {
+        return INSTANCE;
+    }
+
+    public DefaultUriRequest build(Context context, String url) {
+        DefaultUriRequest request = new DefaultUriRequest(context, url);
+        return request;
+    }
+
+    public DefaultUriRequest build(Context context, Uri url) {
+        DefaultUriRequest request = new DefaultUriRequest(context, url);
+        return request;
+    }
+
     /**
      * 启动@RouterPage注解的Activity，自动拼装PageAnnotationHandler.SCHEME_HOST和path
+     *
      * @param context
      * @param path
      */
@@ -124,7 +146,7 @@ public class Router {
         final I service = ServiceLoader.load(clazz).get(ServiceImpl.DEFAULT_IMPL_KEY);
         if (service != null) {
             return service;
-        }else {
+        } else {
             final List<I> services = getAllServices(clazz);
             if (services.size() == 1) {
                 return services.get(0);
@@ -143,11 +165,11 @@ public class Router {
      * @return 找不到或获取、构造失败，则返回null
      */
     public static <I, T extends I> I getService(Class<I> clazz, Context context) {
-        final I service = ServiceLoader.load(clazz).get(ServiceImpl.DEFAULT_IMPL_KEY,context);
+        final I service = ServiceLoader.load(clazz).get(ServiceImpl.DEFAULT_IMPL_KEY, context);
         if (service != null) {
             return service;
-        }else {
-            final List<I> services = getAllServices(clazz,context);
+        } else {
+            final List<I> services = getAllServices(clazz, context);
             if (services.size() == 1) {
                 return services.get(0);
             } else if (services.size() > 1) {
@@ -168,7 +190,7 @@ public class Router {
         final I service = ServiceLoader.load(clazz).get(ServiceImpl.DEFAULT_IMPL_KEY, factory);
         if (service != null) {
             return service;
-        }else {
+        } else {
             final List<I> services = getAllServices(clazz, factory);
             if (services.size() == 1) {
                 return services.get(0);

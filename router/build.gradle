@@ -20,12 +20,9 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
     api "androidx.appcompat:appcompat:1.2.0"
     api "androidx.annotation:annotation:1.1.0"
-//    api "com.sankuai.waimai.router:interfaces:1.2.0"
-    api project(':interfaces')
-    testImplementation 'junit:junit:4.13.1'
+    api "com.yyw.android:interfaces:$VERSION_NAME"
 }
 
 apply from: '../gradle_mvn_push.gradle'

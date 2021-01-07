@@ -1,10 +1,5 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'WMRouter'
-
-//WMRouter {
-//    enableDebug = true // 调试开关
-//}
 
 android {
     compileSdkVersion 28
@@ -44,5 +39,5 @@ dependencies {
 
     api project(path: ':demolib1')
     api project(path: ':demokotlin')
-    annotationProcessor project(path: ':compiler')
+    annotationProcessor "com.yyw.android:compiler:$VERSION"
 }

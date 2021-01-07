@@ -1,5 +1,4 @@
 import org.gradle.internal.jvm.Jvm
-
 apply plugin: 'java'
 
 dependencies {
@@ -7,10 +6,10 @@ dependencies {
     implementation 'com.google.auto.service:auto-service:1.0-rc4'
     implementation 'com.squareup:javapoet:1.11.1'
     compileOnly files(Jvm.current().getToolsJar())
-    implementation project(':interfaces')
+    implementation "com.yyw.android:interfaces:$VERSION_NAME"
 }
-
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
 apply from: '../gradle_mvn_push.gradle'
+

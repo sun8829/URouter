@@ -1,67 +1,107 @@
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-group = GROUP
-version = VERSION_NAME
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven-publish'
 
-
-def getPropertyFromLocalProperties(key) {
-    File file = project.rootProject.file('local.properties');
+def getPropertyFromGradleProperties(key) {
+    File file = project.rootProject.file('gradle.properties');
     if (file.exists()) {
         Properties properties = new Properties()
         properties.load(file.newDataInputStream())
         return properties.getProperty(key)
-    }
-}
-
-def getRepositoryUrl() {
-    return isSnapshot() ? getPropertyFromLocalProperties("SNAPSHOT_REPOSITORY_URL") : getPropertyFromLocalProperties("RELEASE_REPOSITORY_URL")
-}
-
-def isSnapshot() {
-    return version.endsWith("SNAPSHOT");
-}
-
-def hasAndroidPlugin() {
-    return getPlugins().inject(false) { a, b ->
-        def classStr = b.getClass().name
-        def isAndroid = ("com.android.build.gradle.LibraryPlugin" == classStr) || ("com.android.build.gradle.AppPlugin" == classStr)
-        a || isAndroid
-    }
-}
-
-task sourcesJar(type: Jar) {
-    if (hasAndroidPlugin()) {
-        from android.sourceSets.main.java.srcDirs
-        classifier = 'sources'
     } else {
-        from sourceSets.main.allSource
-        classifier = 'sources'
+        return "unspecified";
     }
 }
 
-artifacts {
-    archives sourcesJar
-}
-
-uploadArchives {
-    repositories.mavenDeployer {
-        repository(url: repositoryUrl) {
-            authentication(userName: getPropertyFromLocalProperties("USER"), password: getPropertyFromLocalProperties("PASSWORD"))
+def appendPom(dependenciesNode, dependencySet) {
+    if (dependencySet != null && dependencySet.size() > 0) {
+        dependencySet.each { dependency ->
+            if (dependency.group != null && dependency.version != null) {
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', dependency.group)
+                dependencyNode.appendNode('artifactId', dependency.name)
+                dependencyNode.appendNode('version', dependency.version)
+            }
         }
     }
 }
 
-bintray {
-    user = getPropertyFromLocalProperties("bintray.user")
-    key = getPropertyFromLocalProperties("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = 'maven'
-        name = "${project.group}:${project.name}"
-        userOrg = 'meituanwaimai-android'
-        licenses = ['Apache-2.0']
-        websiteUrl = 'http://tech.meituan.com/waimai-android-router.html'
-        vcsUrl = 'https://github.com/meituan/WMRouter'
-        publish = true
+String moduleName = project.getName()
+def versionName = getPropertyFromGradleProperties(moduleName.toUpperCase() + "_VERSION_NAME")
+println(versionName)
+if (versionName == "unspecified" || versionName == null || versionName == "null") {
+    versionName = getPropertyFromGradleProperties("VERSION_NAME")
+}
+println(versionName)
+def group = getPropertyFromGradleProperties(moduleName.toUpperCase() + "_GROUP_ID")
+int type = getPropertyFromGradleProperties(moduleName.toUpperCase() + "_PACKAGE_TYPE").toInteger();
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId = group
+            artifactId = moduleName.toLowerCase()
+            version = versionName
+            project.getVersion()
+            if (type == 0) {
+                artifact("$buildDir/libs/${project.getName()}.jar")
+            } else {
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+            }
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                if (configurations.hasProperty("implementation")) {
+                    appendPom(dependenciesNode, configurations.implementation.allDependencies)
+                }
+                if (configurations.hasProperty("api")) {
+                    appendPom(dependenciesNode, configurations.api.allDependencies)
+                }
+            }
+        }
+    }
+}
+
+
+
+artifactory {
+    clientConfig.setIncludeEnvVars(true)
+    clientConfig.info.addEnvironmentProperty('test.adding.dynVar', new Date().toString())
+    contextUrl = 'http://10.6.51.28:8040/artifactory';
+    publish {
+        repository {
+            def repo;
+            if (versionName.endsWith("SNAPSHOT")) {
+                repo = 'libs-snapshot-local'
+            } else {
+                repo = 'libs-release-local'
+            }
+            repoKey = repo // The Artifactory repository key to publish to
+            username = "admin" // The publisher user name
+            password = "yyw123456" // The publisher password
+            // This is an optional section for configuring Ivy publication (when publishIvy = true).
+            ivy {
+                ivyLayout = '[organization]/[module]/ivy-[revision].xml'
+                artifactLayout = '[organization]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]'
+                mavenCompatible = true
+                //Convert any dots in an [organization] layout value to path separators, similar to Maven's groupId-to-path conversion. True if not specified
+            }
+        }
+        defaults {
+            // Reference to Gradle publications defined in the build script.
+            // This is how we tell the Artifactory Plugin which artifacts should be
+            // published to Artifactory.
+            publications('app', 'aar', "jar")
+            publishArtifacts = true
+            // Properties to be attached to the published artifacts.
+            properties = ['qa.level': 'basic', 'dev.team': 'core']
+            publishPom = true // Publish generated POM files to Artifactory (true by default)
+        }
+    }
+}
+project.afterEvaluate {
+    def uploadTask = project.tasks.findByName("artifactoryPublish")
+    def buildTask = project.tasks.findByName("build")
+    if (uploadTask != null) {
+        uploadTask.dependsOn(buildTask)
     }
 }

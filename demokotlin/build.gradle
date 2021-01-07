@@ -29,5 +29,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     api project(path: ':demolib2')
-    kapt project(path: ':compiler')
+    kapt "com.yyw.android:compiler:$VERSION"
 }
